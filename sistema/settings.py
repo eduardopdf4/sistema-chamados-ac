@@ -123,3 +123,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 LOGIN_URL = 'chamados:login'
 LOGIN_REDIRECT_URL = 'chamados:meus_chamados'
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://sistema-chamados-ac-production.up.railway.app',
+]
