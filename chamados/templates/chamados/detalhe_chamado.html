@@ -1,139 +1,222 @@
 {% extends 'chamados/base.html' %}
 
-{% block title %}Chamado {{ chamado.id }} | Sistema de Chamados{% endblock %}
+{% block title %}Chamado {{ chamado.id }} | CHAMADOS ACQUA{% endblock %}
 
 {% block content %}
-  <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
-    <div>
-      <div class="d-flex flex-wrap align-items-center gap-2">
-        <h1 class="h3 mb-0">Chamado nº {{ chamado.id }}</h1>
-        <span class="badge
-          {% if chamado.status == 'ABERTO' %}text-bg-secondary
-          {% elif chamado.status == 'ANALISE' %}text-bg-info
-          {% elif chamado.status == 'ANDAMENTO' %}text-bg-primary
-          {% elif chamado.status == 'AGUARDANDO_PECA' %}text-bg-warning
-          {% elif chamado.status == 'CONCLUIDO' %}text-bg-success
-          {% else %}text-bg-danger{% endif %}">
-          {{ chamado.get_status_display }}
-        </span>
-      </div>
-      <p class="text-muted small mb-0 mt-2">
-        Aberto em {{ chamado.data_abertura|date:"d/m/Y H:i" }}
-        {% if chamado.aberto_por %}· Solicitante: <strong>{{ chamado.aberto_por.username }}</strong>{% endif %}
-      </p>
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+  <div>
+    <div class="d-flex flex-wrap align-items-center gap-2">
+      <h1 class="h3 mb-0 fw-bold">Chamado nº {{ chamado.id }}</h1>
+
+      <span class="badge
+        {% if chamado.status == 'ABERTO' %}text-bg-secondary
+        {% elif chamado.status == 'ANALISE' %}text-bg-info
+        {% elif chamado.status == 'ANDAMENTO' %}text-bg-primary
+        {% elif chamado.status == 'AGUARDANDO' %}text-bg-warning
+        {% elif chamado.status == 'CONCLUIDO' %}text-bg-success
+        {% else %}text-bg-danger{% endif %}">
+        {{ chamado.get_status_display }}
+      </span>
     </div>
-    <div class="d-flex gap-2">
-      {% if pode_gerenciar %}
-        <a class="btn btn-outline-secondary btn-sm" href="{% url 'chamados:dashboard' %}">Dashboard</a>
+
+    <p class="text-muted small mb-0 mt-2">
+      Aberto em {{ chamado.data_abertura|date:"d/m/Y H:i" }}
+      {% if chamado.nome_solicitante %}
+        · Solicitante: <strong>{{ chamado.nome_solicitante }}</strong>
+      {% elif chamado.aberto_por %}
+        · Solicitante: <strong>{{ chamado.aberto_por.username }}</strong>
       {% endif %}
-      <a class="btn btn-outline-secondary btn-sm" href="{% url 'chamados:meus_chamados' %}">Meus chamados</a>
-    </div>
+    </p>
   </div>
 
-  <div class="row g-4">
-    <div class="col-lg-8">
-      <div class="card shadow-sm border-0">
-        <div class="card-body p-4">
-          <h2 class="h6 text-uppercase text-muted mb-3">Dados da solicitação</h2>
-          <dl class="row mb-0">
-            <dt class="col-sm-3">Setor</dt>
-            <dd class="col-sm-9">{{ chamado.setor }}</dd>
+  <div class="d-flex gap-2">
+    {% if pode_gerenciar %}
+      <a class="btn btn-outline-secondary btn-sm" href="{% url 'chamados:dashboard' %}">
+        Dashboard
+      </a>
+    {% endif %}
 
-            <dt class="col-sm-3">Equipamento</dt>
-            <dd class="col-sm-9">{{ chamado.equipamento }}</dd>
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'chamados:meus_chamados' %}">
+      Meus chamados
+    </a>
+  </div>
+</div>
 
-            <dt class="col-sm-3">Prioridade</dt>
-            <dd class="col-sm-9">
-              <span class="badge text-bg-{% if chamado.prioridade == 'URGENTE' %}danger{% elif chamado.prioridade == 'ALTA' %}warning{% elif chamado.prioridade == 'MEDIA' %}info{% else %}secondary{% endif %}">
-                {{ chamado.get_prioridade_display }}
-              </span>
-            </dd>
+<div class="row g-4">
+  <div class="col-lg-8">
 
-            <dt class="col-sm-3">Descrição</dt>
-            <dd class="col-sm-9">{{ chamado.descricao|linebreaksbr }}</dd>
-          </dl>
-        </div>
-      </div>
+    <div class="content-card p-4">
+      <h2 class="h6 text-uppercase text-muted mb-3">Dados da solicitação</h2>
 
-      <div class="card shadow-sm border-0 mt-4">
-        <div class="card-body p-4">
-          <h2 class="h6 text-uppercase text-muted mb-3">Comentários (engenharia / admin)</h2>
-          {% if comentarios %}
-            <ul class="list-unstyled mb-0">
-              {% for c in comentarios %}
-                <li class="border-bottom pb-3 mb-3">
-                  <div class="d-flex justify-content-between flex-wrap gap-2">
-                    <strong>{{ c.autor.username }}</strong>
-                    <span class="text-muted small">{{ c.data_criacao|date:"d/m/Y H:i" }}</span>
-                  </div>
-                  <div class="mt-2">{{ c.texto|linebreaksbr }}</div>
-                </li>
-              {% endfor %}
-            </ul>
-          {% else %}
-            <p class="text-muted mb-0">Nenhum comentário registrado ainda.</p>
-          {% endif %}
-        </div>
-      </div>
+      <dl class="row mb-0">
+        <dt class="col-sm-4">Nome do solicitante</dt>
+        <dd class="col-sm-8">
+          {{ chamado.nome_solicitante|default:chamado.aberto_por.username }}
+        </dd>
+
+        <dt class="col-sm-4">Setor / Local</dt>
+        <dd class="col-sm-8">
+          {{ chamado.get_setor_local_display }}
+        </dd>
+
+        <dt class="col-sm-4">Tipo de chamado</dt>
+        <dd class="col-sm-8">
+          {{ chamado.get_tipo_chamado_display }}
+        </dd>
+
+        <dt class="col-sm-4">Prioridade</dt>
+        <dd class="col-sm-8">
+          <span class="badge text-bg-{% if chamado.prioridade == 'URGENTE' %}danger{% elif chamado.prioridade == 'ALTA' %}warning{% elif chamado.prioridade == 'MEDIA' %}info{% else %}secondary{% endif %}">
+            {{ chamado.get_prioridade_display }}
+          </span>
+        </dd>
+
+        <dt class="col-sm-4">Descrição</dt>
+        <dd class="col-sm-8">
+          {{ chamado.descricao|linebreaksbr }}
+        </dd>
+      </dl>
     </div>
 
-    <div class="col-lg-4">
-      <div class="card shadow-sm border-0 mb-4">
-        <div class="card-body p-4">
-          <h2 class="h6 text-uppercase text-muted mb-3">Imagem anexada</h2>
-          {% if chamado.imagem %}
-            <a href="{{ chamado.imagem.url }}" target="_blank" rel="noreferrer" class="d-block">
-              <img src="{{ chamado.imagem.url }}" alt="Anexo do chamado {{ chamado.id }}" class="img-fluid rounded border w-100">
-            </a>
-          {% else %}
-            <p class="text-muted mb-0">Nenhuma imagem anexada.</p>
-          {% endif %}
-        </div>
-      </div>
+    <div class="content-card p-4 mt-4">
+      <h2 class="h6 text-uppercase text-muted mb-3">Comentários e atualizações</h2>
 
-      {% if pode_gerenciar %}
-        <div class="card shadow-sm border-0 border-primary border-opacity-25">
-          <div class="card-header bg-primary text-white py-3">
-            <strong>Atualização (admin)</strong>
-          </div>
-          <div class="card-body p-4">
-            <form method="post" novalidate>
-              {% csrf_token %}
-
-              <div class="mb-3">
-                <label class="form-label" for="{{ status_form.status.id_for_label }}">Status</label>
-                <select
-                  class="form-select {% if status_form.status.errors %}is-invalid{% endif %}"
-                  name="{{ status_form.status.html_name }}"
-                  id="{{ status_form.status.id_for_label }}"
-                  required
-                >
-                  {% for opt in status_form.status %}
-                    {{ opt }}
-                  {% endfor %}
-                </select>
-                {% if status_form.status.errors %}
-                  <div class="invalid-feedback">{{ status_form.status.errors|striptags }}</div>
-                {% endif %}
+      {% if comentarios %}
+        <ul class="list-unstyled mb-0">
+          {% for c in comentarios %}
+            <li class="border-bottom pb-3 mb-3">
+              <div class="d-flex justify-content-between flex-wrap gap-2">
+                <strong>{{ c.autor.username }}</strong>
+                <span class="text-muted small">{{ c.data_criacao|date:"d/m/Y H:i" }}</span>
               </div>
 
-              <div class="mb-3">
-                <label class="form-label" for="id_texto_comentario">Comentário (engenharia / admin)</label>
-                <textarea
-                  class="form-control"
-                  name="texto_comentario"
-                  id="id_texto_comentario"
-                  rows="4"
-                  placeholder="Opcional: registre uma observação visível ao solicitante…"
-                ></textarea>
-                <div class="form-text">Deixe em branco para alterar apenas o status.</div>
+              <div class="mt-2">
+                {{ c.texto|linebreaksbr }}
               </div>
-
-              <button type="submit" name="salvar_atualizacao" value="1" class="btn btn-primary w-100">Salvar atualização</button>
-            </form>
-          </div>
-        </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted mb-0">
+          Nenhum comentário registrado ainda.
+        </p>
       {% endif %}
     </div>
+
+    <!-- COMENTÁRIO DO COLABORADOR -->
+    <div class="content-card p-4 mt-4">
+      <h2 class="h6 text-uppercase text-muted mb-3">
+        Adicionar comentário
+      </h2>
+
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="id_texto_solicitante">
+            Mensagem
+          </label>
+
+          <textarea
+            class="form-control"
+            name="texto_solicitante"
+            id="id_texto_solicitante"
+            rows="4"
+            placeholder="Digite uma observação, atualização ou informação complementar sobre o chamado."
+            required
+          ></textarea>
+        </div>
+
+        <button
+          type="submit"
+          name="enviar_comentario_solicitante"
+          value="1"
+          class="btn btn-acqua"
+        >
+          Enviar comentário
+        </button>
+      </form>
+    </div>
+
   </div>
+
+  <div class="col-lg-4">
+
+    <div class="content-card p-4 mb-4">
+      <h2 class="h6 text-uppercase text-muted mb-3">
+        Imagem anexada
+      </h2>
+
+      {% if chamado.imagem %}
+        <a href="{{ chamado.imagem.url }}" target="_blank" rel="noreferrer" class="d-block">
+          <img
+            src="{{ chamado.imagem.url }}"
+            alt="Anexo do chamado {{ chamado.id }}"
+            class="img-fluid rounded border w-100"
+          >
+        </a>
+      {% else %}
+        <p class="text-muted mb-0">
+          Nenhuma imagem anexada.
+        </p>
+      {% endif %}
+    </div>
+
+    {% if pode_gerenciar %}
+      <div class="content-card overflow-hidden">
+        <div class="p-3 text-white" style="background:#073763;">
+          <strong>Atualização do chamado</strong>
+        </div>
+
+        <div class="p-4">
+          <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold" for="{{ status_form.status.id_for_label }}">
+                Status
+              </label>
+
+              {{ status_form.status }}
+
+              {% if status_form.status.errors %}
+                <div class="text-danger small">
+                  {{ status_form.status.errors|striptags }}
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold" for="id_texto_comentario">
+                Comentário da equipe/admin
+              </label>
+
+              <textarea
+                class="form-control"
+                name="texto_comentario"
+                id="id_texto_comentario"
+                rows="4"
+                placeholder="Opcional: registre uma observação visível ao solicitante."
+              ></textarea>
+
+              <div class="form-text">
+                Deixe em branco para alterar apenas o status.
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              name="salvar_atualizacao"
+              value="1"
+              class="btn btn-acqua w-100"
+            >
+              Salvar atualização
+            </button>
+          </form>
+        </div>
+      </div>
+    {% endif %}
+
+  </div>
+</div>
 {% endblock %}

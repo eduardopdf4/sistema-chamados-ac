@@ -1,0 +1,51 @@
+{% extends "chamados/base.html" %}
+
+{% block title %}Cadastro | CHAMADOS ACQUA{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6 col-md-8">
+    <div class="content-card p-4">
+      <div class="text-center mb-4">
+        <h3 class="fw-bold mb-2">Criar cadastro</h3>
+        <p class="text-muted mb-0">Preencha os dados abaixo para acessar o sistema.</p>
+      </div>
+
+      <form method="post">
+        {% csrf_token %}
+
+        {% for field in form %}
+          <div class="mb-3">
+            <label class="form-label fw-semibold">{{ field.label }}</label>
+
+            {% if field.name == "tipo_conta" %}
+              <div class="border rounded-3 p-3 bg-light">
+                {% for radio in field %}
+                  <div class="form-check mb-2">
+                    {{ radio.tag }}
+                    <label class="form-check-label">{{ radio.choice_label }}</label>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              {{ field }}
+            {% endif %}
+
+            {% for error in field.errors %}
+              <div class="text-danger small mt-1">{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-acqua w-100 py-2 fw-semibold mt-2">
+          Criar minha conta
+        </button>
+      </form>
+
+      <div class="text-center mt-3">
+        <a href="{% url 'chamados:login' %}" class="text-decoration-none">Já tenho cadastro</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
